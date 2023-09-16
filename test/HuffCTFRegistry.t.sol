@@ -26,10 +26,23 @@ contract CounterTest is Test {
         vm.warp(333);
         vm.prank(address(0x333));
         registry.register(1, "user333", keccak256("333's code"), 200);
+
+
+        // ctfId 2
+        vm.warp(1000);
+        vm.prank(address(0x333));
+        registry.register(2, "user333", keccak256("333's code"), 2000);
+
+        vm.warp(1016);
+        vm.prank(address(0x222));
+        registry.register(2, "user222", keccak256("222's code"), 1900);
     }
 
     function test_getSolver() public {
         address solver = registry.getSolver(1, 1);
+        assertEq(solver, address(0x222));
+
+        solver = registry.getSolver(2, 1);
         assertEq(solver, address(0x222));
     }
 
@@ -39,6 +52,11 @@ contract CounterTest is Test {
         assertEq(solvers[0], address(0x111));
         assertEq(solvers[1], address(0x222));
         assertEq(solvers[2], address(0x333));
+
+        solvers = registry.getSolvers(2);
+        assertEq(solvers.length, 2);
+        assertEq(solvers[0], address(0x333));
+        assertEq(solvers[1], address(0x222));
     }
 
     function test_getSolutions() public {
@@ -65,15 +83,23 @@ contract CounterTest is Test {
         assertEq(solutions[2].gas, 200);
         assertEq(solutions[2].codeHash, keccak256("333's code"));
         assertEq(keccak256(abi.encode(solutions[2].solverHandle)), keccak256(abi.encode("user333")));
+
+        solutions = registry.getSolutions(2);
+        assertEq(solutions.length, 2);
+
     }
 
     function test_getSolversRankedByTimestamp() public {
         HuffCTFRegistry.CtfSolution[] memory solutions = registry.getSolversRankedByTimestamp(1);
         assertEq(solutions.length, 3);
-
         assertEq(solutions[0].solverAddress, address(0x111));
         assertEq(solutions[1].solverAddress, address(0x222));
         assertEq(solutions[2].solverAddress, address(0x333));
+
+        solutions = registry.getSolversRankedByTimestamp(2);
+        assertEq(solutions.length, 2);
+        assertEq(solutions[0].solverAddress, address(0x333));
+        assertEq(solutions[1].solverAddress, address(0x222));
     }
 
     function test_getSolversRankedByGas() public {
@@ -83,5 +109,11 @@ contract CounterTest is Test {
         assertEq(solutions[0].solverAddress, address(0x222));
         assertEq(solutions[1].solverAddress, address(0x111));
         assertEq(solutions[2].solverAddress, address(0x333));
+
+        solutions = registry.getSolversRankedByGas(2);
+        assertEq(solutions.length, 2);
+        assertEq(solutions[0].solverAddress, address(0x222));
+        assertEq(solutions[1].solverAddress, address(0x333));
+
     }
 }

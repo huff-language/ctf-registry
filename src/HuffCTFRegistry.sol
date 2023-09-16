@@ -13,12 +13,12 @@ contract HuffCTFRegistry {
         string solverHandle;
     }
 
-    mapping(address => CtfSolution) public solvers;
+    mapping(address solver => mapping(uint8 ctfId => CtfSolution)) public solvers;
     mapping(uint8 ctfId => address[] solverAddresses) public solutions; // by ctfId
 
     // @notice the same account calling this fn with the same ctfId will overwrite the previous solution submitted
     function register(uint8 ctfId, string calldata solverHandle, bytes32 codeHash, uint256 gas) public {
-        solvers[msg.sender] = CtfSolution({
+        solvers[msg.sender][ctfId] = CtfSolution({
             ctfId: ctfId,
             timestamp: uint64(block.timestamp),
             gas: uint24(gas),
@@ -41,7 +41,7 @@ contract HuffCTFRegistry {
         address[] memory solverAddresses = solutions[ctfId];
         ctfSolutions = new CtfSolution[](solverAddresses.length);
         for (uint256 i = 0; i < solverAddresses.length; i++) {
-            ctfSolutions[i] = solvers[solverAddresses[i]];
+            ctfSolutions[i] = solvers[solverAddresses[i]][ctfId];
         }
         return ctfSolutions;
     }
