@@ -67,7 +67,7 @@ contract CounterTest is Test {
         assertEq(keccak256(abi.encode(solutions[2].solverHandle)), keccak256(abi.encode("user333")));
     }
 
-    function getSolversRankedByTimestamp() public {
+    function test_getSolversRankedByTimestamp() public {
         HuffCTFRegistry.CtfSolution[] memory solutions = registry.getSolversRankedByTimestamp(1);
         assertEq(solutions.length, 3);
 
@@ -76,7 +76,7 @@ contract CounterTest is Test {
         assertEq(solutions[2].solverAddress, address(0x333));
     }
 
-    function getSolversRankedByGas() public {
+    function test_getSolversRankedByGas() public {
         HuffCTFRegistry.CtfSolution[] memory solutions = registry.getSolversRankedByGas(1);
         assertEq(solutions.length, 3);
 

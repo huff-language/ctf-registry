@@ -58,12 +58,7 @@ contract HuffCTFRegistry {
 
     // https://ethereum.stackexchange.com/questions/1517/sorting-an-array-of-integer-with-ethereum
     function sort(CtfSolution[] memory data, SortType sortType) public pure returns (CtfSolution[] memory) {
-        if (sortType == SortType.Timestamp) {
-            quickSortTimestamp(data, int256(0), int256(data.length - 1));
-
-        } else if (sortType == SortType.Gas) {
-            quickSortGas(data, int256(0), int256(data.length - 1));
-        }
+        quickSort(sortType, data, int256(0), int256(data.length - 1));
         return data;
     }
 
@@ -71,14 +66,14 @@ contract HuffCTFRegistry {
         return sortType == SortType.Timestamp ? data.timestamp : data.gas;
     }
 
-    function quickSortTimestamp(CtfSolution[] memory arr, int256 left, int256 right) pure internal {
+    function quickSort(SortType sortType, CtfSolution[] memory arr, int256 left, int256 right) pure internal {
         int256 i = left;
         int256 j = right;
         if (i == j) return;
-        uint256 pivot = arr[uint256(left + (right - left) / 2)].timestamp;
+        uint256 pivot = getSortCriteria(arr[uint256(left + (right - left) / 2)], sortType);
         while (i <= j) {
-            while (arr[uint256(i)].timestamp < pivot) i++;
-            while (pivot < arr[uint256(j)].timestamp) j--;
+            while (getSortCriteria(arr[uint256(i)], sortType) < pivot) i++;
+            while (pivot < getSortCriteria(arr[uint256(j)], sortType)) j--;
             if (i <= j) {
                 (arr[uint256(i)], arr[uint256(j)]) = (arr[uint256(j)], arr[uint256(i)]);
                 i++;
@@ -86,32 +81,10 @@ contract HuffCTFRegistry {
             }
         }
         if (left < j) {
-            quickSortTimestamp(arr, left, j);
+            quickSort(sortType, arr, left, j);
         }
         if (i < right) {
-            quickSortTimestamp(arr, i, right);
-        }
-    }
-
-    function quickSortGas(CtfSolution[] memory arr, int256 left, int256 right) pure internal {
-        int256 i = left;
-        int256 j = right;
-        if (i == j) return;
-        uint256 pivot = arr[uint256(left + (right - left) / 2)].gas;
-        while (i <= j) {
-            while (arr[uint256(i)].gas < pivot) i++;
-            while (pivot < arr[uint256(j)].gas) j--;
-            if (i <= j) {
-                (arr[uint256(i)], arr[uint256(j)]) = (arr[uint256(j)], arr[uint256(i)]);
-                i++;
-                j--;
-            }
-        }
-        if (left < j) {
-            quickSortGas(arr, left, j);
-        }
-        if (i < right) {
-            quickSortGas(arr, i, right);
+            quickSort(sortType, arr, i, right);
         }
     }
 }
