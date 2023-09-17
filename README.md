@@ -1,66 +1,75 @@
-## Foundry
+# CTF-Registry
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+This registry has been deployed on Optimism mainnet at: [0xf6aE79c0674df852104D214E16AC9c065DAE5896](https://optimistic.etherscan.io/address/0xf6aE79c0674df852104D214E16AC9c065DAE5896)
 
-Foundry consists of:
-
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
-
-## Documentation
-
-https://book.getfoundry.sh/
+This registry was created for letting CTF players register their solutions.
 
 ## Usage
 
-### Build
+### Register
 
-```shell
-$ forge build
+```
+function register(uint8 ctfId, string calldata solverHandle, bytes32 codeHash, uint256 gas) public;
 ```
 
-### Test
+To register their solution, players will call this function with the following args:
 
-```shell
-$ forge test
+| Parameter Name | Description                 | Example         |
+| -------------- | --------------------------- | --------------- |
+| ctfId          | The ID of the CTF           | `0x69`          |
+| solverHandle   | The handle for the solver   | `"devtooligan"` |
+| codeHash       | The hash of the code        | `0xb0ffedc0de`  |
+| gas            | The amount of gas specified | `420`           |
+
+
+Note: Calling `register()` more than once for a given `ctfId` will overwrite the previous solution submitted.
+
+### View functions
+
+
+In addition to registering, there are some helpful view functions for managing solutions.
+
+```
+    // Retrieves array of addresses of solvers for a given `ctfId`
+    function getSolvers(uint8 ctfId) public view returns (address[] memory)
 ```
 
-### Format
+----
 
-```shell
-$ forge fmt
+```
+    //Retrieves address of solver at index for a given `ctfId`.
+    function getSolver(uint8 ctfId, uint256 index) public view returns (address)
 ```
 
-### Gas Snapshots
+----
 
-```shell
-$ forge snapshot
+
+```
+    //Retrieves array of CtfSolution structs for a given `ctfId`.
+    function getSolutions(uint8 ctfId) public view returns (CtfSolution[] memory ctfSolutions)
+
+    struct CtfSolution {
+        uint8 ctfId;
+        uint64 timestamp;
+        uint24 gas;
+        address solverAddress;
+        bytes32 codeHash;
+        string solverHandle;
+    }
 ```
 
-### Anvil
+----
 
-```shell
-$ anvil
+```
+    //Retrieves array of CtfSolution structs for a given `ctfId` sorted by time submitted (`timestamp`) ascending.
+    function getSolversRankedByTimestamp(uint8 ctfId) public view returns (CtfSolution[] memory sortedSolutions)
 ```
 
-### Deploy
+----
 
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
+```
+    //Retrieves array of CtfSolution structs for a given `ctfId` sorted by `gas` ascending.
+    function getSolversRankedByGas(uint8 ctfId) public view returns (CtfSolution[] memory sortedSolutions)
 ```
 
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+----
